@@ -6,64 +6,89 @@
     <title>Generador 3D Anaglifo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; color: #f5f5f5; }
+        .glass-panel { 
+            background: #2a2a2a; 
+            border: 1px solid #404040; 
+            border-radius: 2rem; /* Extreme rounding */
+        }
+        /* Custom input color styling to keep it prominent */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: 2px solid #555;
+            border-radius: 50%;
+            padding: 0;
+            overflow: hidden;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-10 px-4">
 
     <main class="w-full max-w-5xl">
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-yellow-400 mb-2">
+            <h1 class="text-4xl font-extrabold text-white mb-2" id="mainTitle">
                 Generador de Video 3D Anaglifo
             </h1>
-            <p class="text-slate-400">Sube dos videos. El sistema aplicará un filtro morado al izquierdo y amarillo al derecho, recortando al de menor duración.</p>
+            <p class="text-gray-400">Sube dos videos y selecciona el filtro de color para cada uno. El sistema generará el anaglifo recortando al de menor duración.</p>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- Input Video Izquierdo (Morado) -->
-            <div class="glass-panel p-6 rounded-2xl flex flex-col items-center">
-                <div class="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4 border border-purple-500/50">
-                    <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <!-- Input Video Izquierdo -->
+            <div id="panelLeft" class="glass-panel p-8 flex flex-col items-center transition-colors duration-300">
+                <div class="flex items-center gap-4 mb-4">
+                    <input type="color" id="colorLeft" value="#FF0000" class="w-12 h-12 cursor-pointer bg-transparent">
+                    <h2 class="text-xl font-bold text-gray-200" id="titleLeft">Video Izquierdo</h2>
                 </div>
-                <h2 class="text-xl font-bold mb-2 text-purple-400">Video Izquierdo (Morado)</h2>
-                <input type="file" id="videoLeftInput" accept="video/*" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20 cursor-pointer">
+                <div id="iconLeft" class="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gray-700 text-gray-300 border-2 border-gray-500">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </div>
+                <input type="file" id="videoLeftInput" accept="video/*" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-gray-200 hover:file:bg-gray-500 cursor-pointer mb-2">
                 <video id="videoLeft" class="hidden" preload="auto" playsinline></video>
             </div>
 
-            <!-- Input Video Derecho (Amarillo) -->
-            <div class="glass-panel p-6 rounded-2xl flex flex-col items-center">
-                <div class="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center mb-4 border border-yellow-500/50">
-                    <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <!-- Input Video Derecho -->
+            <div id="panelRight" class="glass-panel p-8 flex flex-col items-center transition-colors duration-300">
+                <div class="flex items-center gap-4 mb-4">
+                    <input type="color" id="colorRight" value="#00FFFF" class="w-12 h-12 cursor-pointer bg-transparent">
+                    <h2 class="text-xl font-bold text-gray-200" id="titleRight">Video Derecho</h2>
                 </div>
-                <h2 class="text-xl font-bold mb-2 text-yellow-400">Video Derecho (Amarillo)</h2>
-                <input type="file" id="videoRightInput" accept="video/*" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-500/10 file:text-yellow-400 hover:file:bg-yellow-500/20 cursor-pointer">
+                <div id="iconRight" class="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gray-700 text-gray-300 border-2 border-gray-500">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </div>
+                <input type="file" id="videoRightInput" accept="video/*" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-gray-200 hover:file:bg-gray-500 cursor-pointer mb-2">
                 <video id="videoRight" class="hidden" preload="auto" playsinline></video>
             </div>
         </div>
 
-        <div class="glass-panel p-6 rounded-2xl flex flex-col items-center mb-8">
-            <h2 class="text-xl font-bold mb-4">Vista Previa / Grabación</h2>
+        <div class="glass-panel p-8 flex flex-col items-center mb-8">
+            <h2 class="text-xl font-bold text-gray-200 mb-4">Vista Previa / Grabación</h2>
             
-            <div class="relative w-full max-w-3xl aspect-video bg-black rounded-lg overflow-hidden border border-slate-700 shadow-2xl mb-6 flex items-center justify-center">
+            <div class="relative w-full max-w-3xl aspect-video bg-black rounded-3xl overflow-hidden border-2 border-gray-600 shadow-xl mb-6 flex items-center justify-center">
                 <canvas id="renderCanvas" class="w-full h-full object-contain"></canvas>
-                <div id="statusOverlay" class="absolute inset-0 bg-slate-900/80 flex flex-col items-center justify-center hidden">
-                    <div class="w-12 h-12 border-4 border-yellow-500 border-t-purple-500 rounded-full animate-spin mb-4"></div>
-                    <p id="statusText" class="text-lg font-semibold animate-pulse">Procesando... 0%</p>
-                    <p class="text-sm text-slate-400 mt-2">No cierres esta pestaña. Grabando en tiempo real.</p>
+                <div id="statusOverlay" class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center hidden rounded-3xl">
+                    <div id="spinner" class="w-12 h-12 border-4 border-gray-500 border-t-white rounded-full animate-spin mb-4"></div>
+                    <p id="statusText" class="text-lg font-semibold text-white animate-pulse">Procesando... 0%</p>
+                    <p class="text-sm text-gray-400 mt-2">No cierres esta pestaña. Grabando en tiempo real.</p>
                 </div>
             </div>
 
             <!-- Controles y barra de progreso -->
             <div class="w-full max-w-3xl flex flex-col items-center">
-                <div class="w-full bg-slate-800 rounded-full h-2.5 mb-4 hidden" id="progressContainer">
-                    <div class="bg-gradient-to-r from-purple-500 to-yellow-500 h-2.5 rounded-full" id="progressBar" style="width: 0%"></div>
+                <div class="w-full bg-gray-700 rounded-full h-3 mb-6 hidden border border-gray-600" id="progressContainer">
+                    <div class="h-full rounded-full transition-all duration-300 bg-white" id="progressBar" style="width: 0%;"></div>
                 </div>
 
-                <button id="processBtn" disabled class="px-8 py-3 rounded-full bg-gradient-to-r from-purple-600 to-yellow-600 font-bold text-white shadow-lg hover:shadow-yellow-500/25 transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                <button id="processBtn" disabled class="px-10 py-4 rounded-full font-bold text-black bg-gray-200 hover:bg-white shadow-lg transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-gray-200">
                     Procesar y Descargar Video
                 </button>
-                <p id="msgBox" class="mt-4 text-sm text-center min-h-[1.5rem]"></p>
+                <p id="msgBox" class="mt-4 text-sm text-center min-h-[1.5rem] font-medium"></p>
             </div>
         </div>
     </main>
@@ -72,8 +97,8 @@
         // DOM Elements
         const videoLeftInput = document.getElementById('videoLeftInput');
         const videoRightInput = document.getElementById('videoRightInput');
-        const videoLeft = document.getElementById('videoLeft');
-        const videoRight = document.getElementById('videoRight');
+        const colorLeftInput = document.getElementById('colorLeft');
+        const colorRightInput = document.getElementById('colorRight');
         const canvas = document.getElementById('renderCanvas');
         const processBtn = document.getElementById('processBtn');
         const statusOverlay = document.getElementById('statusOverlay');
@@ -90,6 +115,7 @@
         let gl, program;
         let texLeft, texRight;
         let positionLocation, texCoordLocation;
+        let colorLeftLocation, colorRightLocation;
         let animationFrameId;
         let mediaRecorder;
         let recordedChunks = [];
@@ -97,12 +123,32 @@
         // Utility: Show Message
         function showMsg(text, type = 'info') {
             msgBox.textContent = text;
-            msgBox.className = `mt-4 text-sm text-center min-h-[1.5rem] ${type === 'error' ? 'text-red-400' : 'text-yellow-400'}`;
+            msgBox.className = `mt-4 text-sm text-center min-h-[1.5rem] font-medium ${type === 'error' ? 'text-gray-400' : 'text-gray-300'}`;
         }
 
         // Setup File Inputs
         videoLeftInput.addEventListener('change', (e) => loadVideo(e.target.files[0], videoLeft, 'left'));
         videoRightInput.addEventListener('change', (e) => loadVideo(e.target.files[0], videoRight, 'right'));
+
+        // Setup Color Inputs (Only updates the shader now, UI stays grayscale)
+        colorLeftInput.addEventListener('input', updateShaderColors);
+        colorRightInput.addEventListener('input', updateShaderColors);
+
+        // Helper: Convert HEX to RGB values (0.0 to 1.0)
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(1, 3), 16) / 255;
+            const g = parseInt(hex.slice(3, 5), 16) / 255;
+            const b = parseInt(hex.slice(5, 7), 16) / 255;
+            return [r, g, b];
+        }
+
+        function updateShaderColors() {
+            // WebGL preview if ready
+            if (leftReady && rightReady) {
+                // Force a single frame render to show the new colors
+                requestAnimationFrame(renderFrame);
+            }
+        }
 
         function loadVideo(file, videoElement, side) {
             if (!file) return;
@@ -155,23 +201,31 @@
                 }
             `;
 
-            // Fragment Shader: Adjusted for Purple and Yellow.
-            // Left video (Purple): Contributes Red and Blue channels.
-            // Right video (Yellow): Contributes Green channel (and optionally Red to make true yellow, 
-            // but standard anaglyph channel splitting usually maps 1 channel to one side, 2 to the other).
-            // For a stark Purple/Yellow separation based on extremes:
+            // Fragment Shader: Dynamic colors passed via uniforms.
             const fsSource = `
                 precision mediump float;
                 varying vec2 v_texCoord;
                 uniform sampler2D u_imageLeft;
                 uniform sampler2D u_imageRight;
+                uniform vec3 u_colorLeft;
+                uniform vec3 u_colorRight;
+
                 void main() {
-                    vec4 colorLeft = texture2D(u_imageLeft, vec2(v_texCoord.x, 1.0 - v_texCoord.y));
-                    vec4 colorRight = texture2D(u_imageRight, vec2(v_texCoord.x, 1.0 - v_texCoord.y));
+                    vec4 texLeft = texture2D(u_imageLeft, vec2(v_texCoord.x, 1.0 - v_texCoord.y));
+                    vec4 texRight = texture2D(u_imageRight, vec2(v_texCoord.x, 1.0 - v_texCoord.y));
                     
-                    // Left Image -> Purple (Red + Blue)
-                    // Right Image -> Yellow/Green (Green channel is dominant for yellow filter pairing)
-                    gl_FragColor = vec4(colorLeft.r, colorRight.g, colorLeft.b, 1.0);
+                    // Calculate luminance (grayscale) for both images
+                    float lumLeft = dot(texLeft.rgb, vec3(0.299, 0.587, 0.114));
+                    float lumRight = dot(texRight.rgb, vec3(0.299, 0.587, 0.114));
+
+                    // Multiply grayscale value by the chosen filter color
+                    vec3 tintedLeft = lumLeft * u_colorLeft;
+                    vec3 tintedRight = lumRight * u_colorRight;
+
+                    // Additive blend the two layers. 
+                    vec3 finalColor = max(tintedLeft, tintedRight);
+
+                    gl_FragColor = vec4(finalColor, 1.0);
                 }
             `;
 
@@ -204,6 +258,10 @@
             gl.enableVertexAttribArray(texCoordLocation);
             gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
+            // Get uniform locations for colors
+            colorLeftLocation = gl.getUniformLocation(program, 'u_colorLeft');
+            colorRightLocation = gl.getUniformLocation(program, 'u_colorRight');
+
             // Create Textures
             texLeft = createTexture(gl);
             texRight = createTexture(gl);
@@ -232,7 +290,6 @@
         function createTexture(gl) {
             const texture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, texture);
-            // Setup parameters so we can render any size video
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -242,7 +299,7 @@
 
         function updateTexture(gl, texture, video) {
             gl.bindTexture(gl.TEXTURE_2D, texture);
-            if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+            if (video.readyState >= 2) { 
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
             }
         }
@@ -267,6 +324,12 @@
             gl.activeTexture(gl.TEXTURE1);
             gl.bindTexture(gl.TEXTURE_2D, texRight);
             gl.uniform1i(gl.getUniformLocation(program, 'u_imageRight'), 1);
+
+            // Pass the user-selected colors to the shader
+            const rgbLeft = hexToRgb(colorLeftInput.value);
+            const rgbRight = hexToRgb(colorRightInput.value);
+            gl.uniform3f(colorLeftLocation, rgbLeft[0], rgbLeft[1], rgbLeft[2]);
+            gl.uniform3f(colorRightLocation, rgbRight[0], rgbRight[1], rgbRight[2]);
 
             gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -305,10 +368,9 @@
             videoRight.currentTime = 0;
 
             // Setup MediaStream (Canvas Video + Audio from Left Video)
-            const videoStream = canvas.captureStream(30); // 30 FPS
+            const videoStream = canvas.captureStream(30); 
             const tracks = [...videoStream.getVideoTracks()];
             
-            // Attempt to extract audio from left video
             const audioStream = videoLeft.captureStream ? videoLeft.captureStream() : (videoLeft.mozCaptureStream ? videoLeft.mozCaptureStream() : null);
             if (audioStream && audioStream.getAudioTracks().length > 0) {
                 tracks.push(...audioStream.getAudioTracks());
@@ -317,10 +379,9 @@
             const combinedStream = new MediaStream(tracks);
             
             try {
-                // Use standard webm which is well supported by MediaRecorder
                 const options = { mimeType: 'video/webm; codecs=vp8,opus' };
                 if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    options.mimeType = 'video/webm'; // fallback
+                    options.mimeType = 'video/webm'; 
                 }
                 mediaRecorder = new MediaRecorder(combinedStream, options);
             } catch (e) {
@@ -335,12 +396,10 @@
             videoLeft.play();
             videoRight.play();
             
-            // Mute them so the user doesn't hear double audio during processing, 
-            // but the stream will still capture it (if supported by captureStream).
             videoLeft.muted = true;
             videoRight.muted = true;
 
-            renderFrame(); // Start the loop
+            renderFrame(); 
         }
 
         function handleDataAvailable(event) {
@@ -356,7 +415,7 @@
             videoLeft.pause();
             videoRight.pause();
             
-            if (mediaRecorder.state !== 'inactive') {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
 
